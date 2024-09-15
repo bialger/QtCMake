@@ -25,7 +25,7 @@ find_package(Qt6 COMPONENTS Core Gui Widgets QUIET)
 
 if (NOT Qt6_FOUND)
     # Set Ninja for compilation
-    set( CMAKE_GENERATOR "Ninja" CACHE STRING "CMake generator" FORCE )
+    set(CMAKE_GENERATOR "Ninja" CACHE STRING "CMake generator" FORCE)
     # Initial message
     message(STATUS "Qt 6.7.2 not found. Downloading and configuring Qt...")
 
@@ -57,7 +57,7 @@ if (NOT Qt6_FOUND)
             WORKING_DIRECTORY ${QT_BUILD_DIR})
 
     # Build Qt
-    execute_process(COMMAND ${CMAKE_COMMAND} --build .
+    execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" -DCMAKE_MAKE_PROGRAM="${CMAKE_MAKE_PROGRAM}" --build .
             WORKING_DIRECTORY ${QT_BUILD_DIR})
 
     find_package(Qt6 COMPONENTS Core Gui Widgets REQUIRED)
