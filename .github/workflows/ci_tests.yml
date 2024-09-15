@@ -11,7 +11,7 @@ jobs:
       matrix:
         config:
           - {
-            name: "Windows Latest MinGW (Ninja)", artifact: "Windows-Ninja.tar.xz",
+            name: "Windows Latest MinGW", artifact: "Windows-Ninja.tar.xz",
             os: windows-latest,
             build_type: "Release", cc: "gcc", cxx: "g++",
           }
@@ -32,7 +32,7 @@ jobs:
       - name: Create CMake cache
         shell: bash
         run: |
-          cmake -S . -B cmake-build-release -DCMAKE_BUILD_TYPE=Release -G Ninja
+          cmake -S . -B cmake-build-release -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles"
 
       - name: Build main target
         shell: bash
