@@ -53,11 +53,11 @@ if (NOT Qt6_FOUND)
     set(QT_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/qt-build")
     file(MAKE_DIRECTORY ${QT_BUILD_DIR})
     message(STATUS "Configuring...")
-    execute_process(COMMAND "${QT_SOURCE_DIR}/configure${CONFIG_SCRIPT_EXT}" -prefix ${QT_BUILD_DIR}
+    execute_process(COMMAND "${QT_SOURCE_DIR}/configure${CONFIG_SCRIPT_EXT}" -prefix ${QT_BUILD_DIR} -G "${CMAKE_GENERATOR}" -DCMAKE_MAKE_PROGRAM="${CMAKE_MAKE_PROGRAM}"
             WORKING_DIRECTORY ${QT_BUILD_DIR})
 
     # Build Qt
-    execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" -DCMAKE_MAKE_PROGRAM="${CMAKE_MAKE_PROGRAM}" --build .
+    execute_process(COMMAND ${CMAKE_COMMAND} --build .
             WORKING_DIRECTORY ${QT_BUILD_DIR})
 
     find_package(Qt6 COMPONENTS Core Gui Widgets REQUIRED)
