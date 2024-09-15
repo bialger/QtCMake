@@ -1,0 +1,53 @@
+name: "CI tests"
+
+on: [ push ]
+
+jobs:
+  build-matrix:
+    name: Tests and application run on ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+            name: "Windows Latest MinGW", artifact: "Windows-Ninja.tar.xz",
+            os: windows-latest,
+            build_type: "Release", cc: "gcc", cxx: "g++",
+          }
+          - {
+            name: "Ubuntu Latest GCC", artifact: "Linux.tar.xz",
+            os: ubuntu-latest,
+            build_type: "Release", cc: "gcc", cxx: "g++"
+          }
+          - {
+            name: "macOS Latest Clang", artifact: "macOS.tar.xz",
+            os: macos-latest,
+            build_type: "Release", cc: "clang", cxx: "clang++"
+          }
+
+    steps:
+      - uses: actions/checkout@v4
+
+
+      - uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Create CMake cache
+        shell: bash
+        run: |
+          cmake -S . -B cmake-build-release -DCMAKE_BUILD_TYPE=Release -G "Ninja"
+
+      - name: Build main target
+        shell: bash
+        run: |
+          cmake --build cmake-build-release --target QtCMake || echo "Built with errors"
+
+      - name: Run program
+        shell: bash
+        working-directory: ./cmake-build-release/bin
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+              ./QtCMake.exe --help
+          else 
+              ./QtCMake --help
+          fi
