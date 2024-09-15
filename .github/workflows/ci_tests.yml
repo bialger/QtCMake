@@ -33,8 +33,8 @@ jobs:
         id: cmake_and_ninja
         shell: cmake -P {0}
         run: |
-          set(ninja_version "1.9.0")
-          set(cmake_version "3.16.2")
+          set(ninja_version "1.12.0")
+          set(cmake_version "3.27.0")
 
           message(STATUS "Using host CMake version: ${CMAKE_VERSION}")
 
@@ -74,7 +74,7 @@ jobs:
       - name: Create CMake cache
         shell: bash
         run: |
-          cmake -S . -B cmake-build-release -DCMAKE_BUILD_TYPE=Release -G "Ninja"
+          cmake -S . -B cmake-build-release -DCMAKE_BUILD_TYPE=Release -G "Ninja" -DCMAKE_MAKE_PROGRAM="${GITHUB_WORKSPACE}/ninja"
 
       - name: Build main target
         shell: bash
