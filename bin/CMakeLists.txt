@@ -7,13 +7,4 @@ add_executable(${PROJECT_NAME}
         main.cpp
 )
 
-if (WIN32)
-    add_custom_command(
-            TARGET ${PROJECT_NAME}
-            POST_BUILD
-            COMMAND "${QT_BIN_DIR}/windeployqt.exe"
-            ARGS "${CMAKE_BINARY_DIR}/bin"
-    )
-endif ()
-
 target_link_libraries(${PROJECT_NAME} PRIVATE qt)
