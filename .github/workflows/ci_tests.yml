@@ -10,16 +10,16 @@ jobs:
       fail-fast: false
       matrix:
         config:
-#          - {
-#            name: "Windows Latest MinGW", artifact: "Windows-Ninja.tar.xz",
-#            os: windows-latest,
-#            build_type: "Release", cc: "gcc", cxx: "g++",
-#          }
-#          - {
-#            name: "Ubuntu Latest GCC", artifact: "Linux.tar.xz",
-#            os: ubuntu-latest,
-#            build_type: "Release", cc: "gcc", cxx: "g++"
-#          }
+          - {
+            name: "Windows Latest MinGW", artifact: "Windows-Ninja.tar.xz",
+            os: windows-latest,
+            build_type: "Release", cc: "gcc", cxx: "g++",
+          }
+          - {
+            name: "Ubuntu Latest GCC", artifact: "Linux.tar.xz",
+            os: ubuntu-latest,
+            build_type: "Release", cc: "gcc", cxx: "g++"
+          }
           - {
             name: "macOS Latest Clang", artifact: "macOS.tar.xz",
             os: macos-latest,
@@ -29,8 +29,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-
       - uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Install Qt dependencies for Linux
+        if: ${{ matrix.config.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt install libgl1-mesa-dev libglu1-mesa-dev
 
       - name: Create CMake cache
         shell: bash
