@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(
         QtCMake
-        VERSION 0.9.0
+        VERSION 1.0.0
         DESCRIPTION "CMake project for easy Qt connection to other CMake projects"
         LANGUAGES CXX
 )
@@ -14,6 +14,8 @@ message(STATUS "Building ${PROJECT_DESCRIPTION} ${PROJECT_NAME}, version ${PROJE
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif ()
+
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 if (WIN32)
     set(USER_HOME_DIRECTORY $ENV{USERPROFILE})
