@@ -50,7 +50,7 @@ if (NOT Qt6_FOUND)
     set(QT_CONFIGURE_OPTIONS -static -c++std c++20 -static-runtime -prefix ${QT_BUILD_DIR})
 
     if (WIN32)
-        execute_process(COMMAND "${QT_SOURCE_DIR}/configure.bat" ${QT_CONFIGURE_OPTIONS}
+        execute_process(COMMAND "${QT_SOURCE_DIR}/configure.bat" ${QT_CONFIGURE_OPTIONS} -no-zlib
                 WORKING_DIRECTORY ${QT_BUILD_DIR})
     else ()
         execute_process(COMMAND "${QT_SOURCE_DIR}/configure" ${QT_CONFIGURE_OPTIONS}
