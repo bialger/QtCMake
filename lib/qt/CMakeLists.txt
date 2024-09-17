@@ -8,10 +8,8 @@ endif ()
 
 if (WIN32)
     set(PATH_DELIMITER ";")
-    set(QT_CONFIG_OPTIONS "-c++std c++20 -static-runtime -skip qtzlib")
 else ()
     set(PATH_DELIMITER ":")
-    set(QT_CONFIG_OPTIONS "-c++std c++20 -static-runtime")
 endif ()
 
 # Set necessary environment variables to use Qt
@@ -45,18 +43,18 @@ if (NOT Qt6_FOUND)
             OUTPUT_QUIET
     )
 
-    if (WIN32)
-        set(CONFIG_SCRIPT_EXT ".bat")
-    else ()
-        set(CONFIG_SCRIPT_EXT "")
-    endif ()
-
     # Configure Qt (skip building of useless modules)
     set(QT_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/qt-build")
     file(MAKE_DIRECTORY ${QT_BUILD_DIR})
     message(STATUS "Configuring...")
-    execute_process(COMMAND "${QT_SOURCE_DIR}/configure${CONFIG_SCRIPT_EXT}" ${QT_CONFIG_OPTIONS} -static -prefix ${QT_BUILD_DIR}
-            WORKING_DIRECTORY ${QT_BUILD_DIR})
+
+    if (WIN32)
+        execute_process(COMMAND "${QT_SOURCE_DIR}/configure.bat" -static -c++std c++20 -skip qtzlib -prefix ${QT_BUILD_DIR}
+                WORKING_DIRECTORY ${QT_BUILD_DIR})
+    else ()
+        execute_process(COMMAND "${QT_SOURCE_DIR}/configure" -static -c++std c++20 -prefix ${QT_BUILD_DIR}
+                WORKING_DIRECTORY ${QT_BUILD_DIR})
+    endif ()
 
     # Build Qt
     execute_process(COMMAND ${CMAKE_COMMAND} --build .
