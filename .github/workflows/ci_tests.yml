@@ -10,11 +10,11 @@ jobs:
       fail-fast: false
       matrix:
         config:
-#          - {
-#            name: "Windows Latest MinGW", artifact: "Windows-Ninja.tar.xz",
-#            os: windows-latest,
-#            build_type: "Release", cc: "gcc", cxx: "g++",
-#          }
+          - {
+            name: "Windows Latest MinGW", artifact: "Windows-Ninja.tar.xz",
+            os: windows-latest,
+            build_type: "Release", cc: "gcc", cxx: "g++",
+          }
           - {
             name: "Ubuntu Latest GCC", artifact: "Linux.tar.xz",
             os: ubuntu-latest,
