@@ -4,10 +4,6 @@ The resulting app is an executable that can be run on a system without Qt.
 
 The main Qt6 configuration is found in the [correspondent](lib/qt/CMakeLists.txt) CMakeLists.txt file.
 
-> Note: Although the project has CI compilation tests, they somehow only succeed on macOS.
-> I don't know why.
-> I tested manually on Windows and Linux, and it works perfectly.
-
 > Note that statically compiled Qt6 weights more than 5 GB.
 > The good thing is that user does not need whole compiled Qt6 with this configuration.
 
@@ -17,7 +13,8 @@ The main Qt6 configuration is found in the [correspondent](lib/qt/CMakeLists.txt
 * Ninja
 * Git
 
-On Linux: most of the libraries that match `*xcb*` and `*xkb*` are required.
+On Linux: `libgl1-mesa-dev libglu1-mesa-dev` and all dependencies are required.
+> Note that most of the libraries that match `*xcb*` and `*xkb*` may be required on Linux.
 
 ## How to build and run
 
