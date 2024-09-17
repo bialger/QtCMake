@@ -8,8 +8,10 @@ endif ()
 
 if (WIN32)
     set(PATH_DELIMITER ";")
+    set(QT_CONFIG_OPTIONS "-c++std c++20 -static-runtime -skip qtzlib")
 else ()
     set(PATH_DELIMITER ":")
+    set(QT_CONFIG_OPTIONS "-c++std c++20 -static-runtime")
 endif ()
 
 # Set necessary environment variables to use Qt
@@ -27,7 +29,7 @@ if (NOT Qt6_FOUND)
     # Set Ninja for compilation
     set(CMAKE_GENERATOR "Ninja" CACHE STRING "CMake generator" FORCE)
     # Initial message
-    message(STATUS "Qt 6.7.2 not found. Downloading and configuring Qt...")
+    message(STATUS "Qt 6 not found. Downloading and configuring Qt...")
 
     # Download and extract archive of Qt 6.7.2
     set(QT_VERSION "6.7.2")
@@ -53,7 +55,7 @@ if (NOT Qt6_FOUND)
     set(QT_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/qt-build")
     file(MAKE_DIRECTORY ${QT_BUILD_DIR})
     message(STATUS "Configuring...")
-    execute_process(COMMAND "${QT_SOURCE_DIR}/configure${CONFIG_SCRIPT_EXT}" -static -prefix ${QT_BUILD_DIR}
+    execute_process(COMMAND "${QT_SOURCE_DIR}/configure${CONFIG_SCRIPT_EXT}" ${QT_CONFIG_OPTIONS} -static -prefix ${QT_BUILD_DIR}
             WORKING_DIRECTORY ${QT_BUILD_DIR})
 
     # Build Qt
@@ -62,7 +64,7 @@ if (NOT Qt6_FOUND)
 
     find_package(Qt6 COMPONENTS Core Gui Widgets REQUIRED)
 else ()
-    message(STATUS "Qt 6.7.2 found in the system.")
+    message(STATUS "Qt 6 found in the system.")
 endif ()
 
 qt_standard_project_setup()
