@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.25)
 
-message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
-
-add_subdirectory(qt)
+if(NOT TESTS_ONLY)
+    add_subdirectory(qt)
+endif()
