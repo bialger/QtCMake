@@ -162,6 +162,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install libgl1-mesa-dev libglu1-mesa-dev
+          sudo apt install qt6-base-dev
 
       - name: Create CMake cache
         run: |
