@@ -10,6 +10,13 @@
 # IntelliJ
 **out/
 
+# Visual Studio Code
+**.vscode/
+**.history/
+build/
+.clangd
+CMakePresets.json
+
 # mpeltonen/sbt-idea plugin
 **.idea_modules/
 
@@ -30,6 +37,10 @@ fabric.properties
 
 # Cache directories
 **cache*/
+
+# Program settings files
+**.config*/reader/*
+**.config*/analyzer/*
 
 # Prerequisites
 *.d
