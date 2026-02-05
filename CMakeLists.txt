@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 
 project(
         QtCMake
-        VERSION 1.0.0
+        VERSION 1.1.0
         DESCRIPTION "CMake project for easy Qt connection to other CMake projects"
         LANGUAGES CXX
 )
