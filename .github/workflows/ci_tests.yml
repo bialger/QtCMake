@@ -34,6 +34,7 @@ jobs:
       - name: Install Qt dependencies for Linux
         if: ${{ matrix.config.os == 'ubuntu-latest' }}
         run: |
+          sudo update
           sudo apt install libgl1-mesa-dev libglu1-mesa-dev
 
       - name: Create CMake cache
@@ -55,3 +56,210 @@ jobs:
           else 
               ./QtCMake --help
           fi
+
+          style-check:
+            name: Code style check with clang-format
+            runs-on: ubuntu-latest
+            steps:
+              - uses: actions/checkout@v4
+        
+              - name: Install clang-format
+                run: |
+                  sudo apt-get update && sudo apt-get -y install clang-format
+        
+              - name: Check code style
+                shell: bash
+                run: |
+                  mapfile -t files < <(git ls-files '*.c' '*.cpp' '*.h' '*.hpp')
+        
+                  if [ "${#files[@]}" -eq 0 ]; then
+                    echo "No C/C++ files to check."
+                    exit 0
+                  fi
+        
+                  clang-format --dry-run --Werror "${files[@]}" 2>format_output.txt || {
+                    cat format_output.txt
+                    exit 1
+                  }
+        
+              - name: Comment on style issues
+                if: failure() && github.event_name == 'pull_request'
+                uses: actions/github-script@v7
+                with:
+                  script: |
+                    const fs = require('fs');
+                    const { execSync } = require('child_process');
+        
+                    try {
+                      // Get list of files that need formatting
+                      const rawFiles = execSync('git ls-files "*.c" "*.cpp" "*.h" "*.hpp"', { encoding: 'utf8' }).trim();
+        
+                      if (!rawFiles) {
+                        console.log('No files require formatting checks.');
+                        return;
+                      }
+        
+                      const files = rawFiles.split('\n');
+        
+                      let comment = '## 🎨 Code Style Issues Found\n\n';
+                      comment += 'The following files have formatting issues:\n\n';
+                      let hasIssues = false;
+        
+                      for (const file of files) {
+                        try {
+                          const result = execSync(`clang-format --dry-run --Werror "${file}" 2>&1`, { encoding: 'utf8' });
+                        } catch (error) {
+                          comment += `- \`${file}\`: Formatting issues detected\n`;
+                          hasIssues = true;
+                        }
+                      }
+        
+                      if (!hasIssues) {
+                        comment += 'No files with formatting issues were detected.';
+                      } else {
+                        comment += '\nPlease run `clang-format -i <file>` to fix formatting issues.';
+                      }
+        
+                      github.rest.issues.createComment({
+                        issue_number: context.issue.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        body: comment
+                      });
+                    } catch (error) {
+                      console.log('Could not create comment:', error.message);
+                    }
+        
+          code-quality-check:
+            name: Code quality check with clang-tidy
+            runs-on: ubuntu-latest
+            steps:
+              - uses: actions/checkout@v4
+        
+              - name: Install clang-tidy and GCC 13
+                run: |
+                  sudo apt-get update
+                  # Install a C++23-capable toolchain and clang-tidy-19 for better C++23 support
+                  sudo apt-get -y install clang-19 clang-tidy-19
+        
+              - name: Create CMake cache
+                run: |
+                  cmake -S . -B cmake-build-tidy \
+                    -DCMAKE_BUILD_TYPE=Debug \
+                    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        
+              - name: Run clang-tidy
+                shell: bash
+                run: |
+                  mapfile -t files < <(git ls-files '*.c' '*.cpp')
+        
+                  if [ "${#files[@]}" -eq 0 ]; then
+                    echo "No C/C++ files to analyze."
+                    echo "" > tidy_output.txt
+                    exit 0
+                  fi
+        
+                  echo "Running clang-tidy-19 on ${#files[@]} files..."
+                  # Use clang-tidy-19 for better C++23 support and --extra-arg-before to ensure C++23 standard is set before other flags
+                  clang-tidy-19 "${files[@]}" -p cmake-build-tidy --format-style=file > tidy_output.txt 2>&1 || true
+        
+                  # Ensure file exists and is readable
+                  if [ ! -f tidy_output.txt ]; then
+                    echo "" > tidy_output.txt
+                  fi
+        
+              - name: Count warnings and errors
+                id: count_issues
+                run: |
+                  # Count errors and warnings - handle empty file case
+                  if [ ! -s tidy_output.txt ]; then
+                    errors=0
+                    warnings=0
+                  else
+                    errors=$(grep -c "error:" tidy_output.txt 2>/dev/null || echo "0")
+                    warnings=$(grep -c "warning:" tidy_output.txt 2>/dev/null || echo "0")
+                  fi
+        
+                  # Ensure we have clean integer values
+                  errors=$(echo "$errors" | tr -d '\n' | head -c 10)
+                  warnings=$(echo "$warnings" | tr -d '\n' | head -c 10)
+        
+                  # Default to 0 if empty or non-numeric
+                  errors=${errors:-0}
+                  warnings=${warnings:-0}
+        
+                  echo "errors=$errors" >> $GITHUB_OUTPUT
+                  echo "warnings=$warnings" >> $GITHUB_OUTPUT
+        
+                  echo "Found $errors errors and $warnings warnings"
+        
+                  if [ "$errors" -eq 0 ] && [ "$warnings" -le 3 ]; then
+                    echo "clang-tidy found $warnings warnings"
+                    cat tidy_output.txt
+                    exit 0
+                  fi
+        
+                  # Fail if more than 3 warnings or any errors
+                  if [ "$errors" -gt 0 ] || [ "$warnings" -gt 3 ]; then
+                    echo "clang-tidy found $errors errors and $warnings warnings"
+                    cat tidy_output.txt
+                    exit 1
+                  fi
+        
+              - name: Comment on quality issues
+                if: failure() && github.event_name == 'pull_request'
+                uses: actions/github-script@v7
+                with:
+                  script: |
+                    const fs = require('fs');
+        
+                    try {
+                      let comment = '## 🔍 Code Quality Issues Found\n\n';
+                      
+                      if (fs.existsSync('tidy_output.txt')) {
+                        const output = fs.readFileSync('tidy_output.txt', 'utf8');
+                        const lines = output.split('\n');
+                        
+                        let currentFile = '';
+                        let hasIssues = false;
+                        
+                        for (const line of lines) {
+                          if (line.includes('error:') || line.includes('warning:')) {
+                            const parts = line.split(':');
+                            if (parts.length >= 4) {
+                              const file = parts[0];
+                              const lineNum = parts[1];
+                              const message = parts.slice(3).join(':').trim();
+                              
+                              if (file !== currentFile) {
+                                if (hasIssues) comment += '\n';
+                                comment += `### \`${file}\`\n\n`;
+                                currentFile = file;
+                                hasIssues = true;
+                              }
+                              
+                              const issueType = line.includes('error:') ? '❌ Error' : '⚠️ Warning';
+                              comment += `- **Line ${lineNum}**: ${issueType} - ${message}\n`;
+                            }
+                          }
+                        }
+                        
+                        if (!hasIssues) {
+                          comment += 'No specific issues found in the output.';
+                        }
+                      } else {
+                        comment += 'Could not read clang-tidy output.';
+                      }
+                      
+                      comment += '\n\nPlease review and fix the issues above.';
+                      
+                      github.rest.issues.createComment({
+                        issue_number: context.issue.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        body: comment
+                      });
+                    } catch (error) {
+                      console.log('Could not create comment:', error.message);
+                    }
+        
