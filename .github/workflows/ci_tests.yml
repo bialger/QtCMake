@@ -45,7 +45,7 @@ jobs:
       - name: Build main target
         shell: bash
         run: |
-          cmake --build cmake-build-release --target QtCMake || echo "Built with errors"
+          cmake --build cmake-build-release --target QtCMake
 
       - name: Run program
         shell: bash
@@ -55,6 +55,23 @@ jobs:
               ./QtCMake.exe --help
           else 
               ./QtCMake --help
+          fi
+      - name: Build tests
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+              cmake --build ./cmake-build-release/tests --target QtCMake_tests || echo "Built with errors"
+          else
+              cmake --build ./cmake-build-release/tests --target QtCMake_tests
+          fi
+      - name: Run tests
+        shell: bash
+        working-directory: ./cmake-build-release/tests
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+              ./QtCMake_tests.exe || echo "Tests failed" # Due to a specific MinGW-related Github Actions issue
+          else
+              ./QtCMake_tests
           fi
 
   style-check:
