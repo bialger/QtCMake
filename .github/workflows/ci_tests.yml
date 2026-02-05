@@ -34,7 +34,7 @@ jobs:
       - name: Install Qt dependencies for Linux
         if: ${{ matrix.config.os == 'ubuntu-latest' }}
         run: |
-          sudo update
+          sudo apt update
           sudo apt install libgl1-mesa-dev libglu1-mesa-dev
 
       - name: Create CMake cache
