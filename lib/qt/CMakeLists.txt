@@ -68,7 +68,7 @@ endif ()
 
 qt_standard_project_setup()
 
-add_library(qt INTERFACE QtCMake.hpp)
+add_library(qt INTERFACE)
 
 target_include_directories(qt INTERFACE "${QtCMake_SOURCE_DIR}/lib/qt")
 target_include_directories(qt INTERFACE "${qt_cmake_SOURCE_DIR}/lib/qt")
