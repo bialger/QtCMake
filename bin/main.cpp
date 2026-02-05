@@ -15,7 +15,7 @@ static constexpr const char* kFormat = "hh:mm:ss";
 
 int main(int argc, char** argv) {
   if (argc > 1) {
-    std::cout << "No CLI arguments allowed." << std::endl;
+    std::cout << "No CLI arguments allowed.\n";
     return 0;
   }
 
