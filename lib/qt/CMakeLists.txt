@@ -29,8 +29,8 @@ if (NOT Qt6_FOUND)
     # Initial message
     message(STATUS "Qt 6 not found. Downloading and configuring Qt...")
 
-    # Download and extract archive of Qt 6.7.2
-    set(QT_VERSION "6.7.2")
+    # Download and extract archive of Qt 6.8.2
+    set(QT_VERSION "6.8.2")
     set(QT_ARCHIVE_URL "https://github.com/qt/qtbase/archive/refs/tags/v${QT_VERSION}.tar.gz")
     set(QT_ARCHIVE_FILE "${CMAKE_CURRENT_BINARY_DIR}/qtbase-${QT_VERSION}.tar.gz")
     set(QT_SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/qtbase-${QT_VERSION}")
@@ -58,7 +58,7 @@ if (NOT Qt6_FOUND)
     endif ()
 
     # Build Qt
-    execute_process(COMMAND ${CMAKE_COMMAND} --build .
+    execute_process(COMMAND ${CMAKE_COMMAND} --build . --parallel
             WORKING_DIRECTORY ${QT_BUILD_DIR})
 
     find_package(Qt6 COMPONENTS Core Gui Widgets REQUIRED)
@@ -68,7 +68,7 @@ endif ()
 
 qt_standard_project_setup()
 
-add_library(qt INTERFACE QtCMake.hpp)
+add_library(qt INTERFACE)
 
 target_include_directories(qt INTERFACE "${QtCMake_SOURCE_DIR}/lib/qt")
 target_include_directories(qt INTERFACE "${qt_cmake_SOURCE_DIR}/lib/qt")
