@@ -60,9 +60,9 @@ jobs:
         shell: bash
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
-              cmake --build ./cmake-build-release/tests --target QtCMake_tests || echo "Built with errors"
+              cmake --build ./cmake-build-release --target QtCMake_tests || echo "Built with errors"
           else
-              cmake --build ./cmake-build-release/tests --target QtCMake_tests
+              cmake --build ./cmake-build-release --target QtCMake_tests
           fi
       - name: Run tests
         shell: bash
