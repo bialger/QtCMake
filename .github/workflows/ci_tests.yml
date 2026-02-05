@@ -141,11 +141,15 @@ jobs:
           sudo apt-get update
           # Install a C++23-capable toolchain and clang-tidy-19 for better C++23 support
           sudo apt-get -y install clang-19 clang-tidy-19
+      - name: Install Qt dependencies for Linux
+        run: |
+          sudo apt update
+          sudo apt install libgl1-mesa-dev libglu1-mesa-dev
 
       - name: Create CMake cache
         run: |
           cmake -S . -B cmake-build-tidy \
-            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
       - name: Run clang-tidy
